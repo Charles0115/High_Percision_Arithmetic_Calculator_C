@@ -34,11 +34,38 @@ void toWholeNumber(int* (*num), char* n)
  */
 char* WholeNumberAddition(char* number1, char* number2)
 {
+    int i, length1 = strlen(number1), length2 = strlen(number2);
+    //Sometimes there are useless 0s at the front, we need to clear them
+    //Simply keep the digits after the last digit of 0s
+    for (i = 0; i < length1; i++)
+    {
+        if (number1[i] != '0')
+        {
+            number1 = &number1[i];	//This is like string.substring(i) in java
+            break;
+        }
+    }
+    if (i == length1)	//If the result is just 0, we change the number1 to 0 as well
+    {
+        number1 = "0";
+    }
+
+    //do the same thing for number2
+    for (i = 0; i < length2; i++)
+    {
+        if (number2[i] != '0')
+        {
+            number2 = &number2[i];	//This is like string.substring(i) in java
+            break;
+        }
+    }
+    if (i == length2)	//If the result is just 0, we change the *finalresult to 0 as well
+    {
+        number2 = "0";
+    }
+
     //NumberArrayLength is determined by the length of the bigger input
-    if (strlen(number1) >= strlen(number2))
-        NumberArrayLength = strlen(number1);
-    else
-        NumberArrayLength = strlen(number2);
+    NumberArrayLength = strlen(number1) >= strlen(number2)? strlen(number1): strlen(number2);
 
     //Initialize 2 int arrays and set each of them to each number (input)
     int* num1 = NULL;
@@ -50,7 +77,6 @@ char* WholeNumberAddition(char* number1, char* number2)
     int* result = malloc((NumberArrayLength + 1) * sizeof(int));		//reason for NumberArrayLength + 1 is because 789+789=1578
     char* finalresult = malloc(NumberArrayLength + 2);	//reason NumberArrayLength + 2 is because of '\0' at the last
 
-    int i;
     int carry = 0;
     int digit = 0;
     //Grad school addition part (the boring part)
@@ -67,7 +93,9 @@ char* WholeNumberAddition(char* number1, char* number2)
     if (carry == 1)
         result[0] = 1;
     else
+    {
         result[0] = 0;
+    }
 
     //Now the result array has contained the answer, we just need to transfer the answer to *finalresult
     for (i = 0; i < NumberArrayLength + 1; i++)		//be aware that this the length of result is NumberArrayLength + 1
@@ -76,21 +104,10 @@ char* WholeNumberAddition(char* number1, char* number2)
     }
     finalresult[i] = '\0';	//Don't forget to put '\0' at last otherwise it will pop up some weird symbols
 
-    //Sometimes there are useless 0s at the front, we need to clear them
-    //Simply keep the digits after the last digit of 0s
-    for (i = 0; i < NumberArrayLength + 1; i++)
-    {
-        if (finalresult[i] != '0')
-        {
-            finalresult = &finalresult[i];	//This is like string.substring(i) in java
-            break;
-        }
-    }
-    if (i == NumberArrayLength + 1)	//If the result is just 0, we change the *finalresult to 0 as well
-    {
-        finalresult = "0";
-    }
-
+    //There is a chance that the first number is 0 since 10+10=20, not 50+51=101
+    //We check if the first number is 0. If it is, then we just get rid of it
+    if(finalresult[0] == '0')
+        finalresult = &finalresult[1];
 
     //Finally, we free those dynamic arrays
     free(num1);
@@ -1152,7 +1169,7 @@ int isSame (char* number1, char* number2)
         int i;
         for(i=0; i<strlen(number1); i++)
         {
-            if(!(number1[i] == number2[i]))
+            if(number1[i] != number2[i])
                 return 0;
         }
         return 1;
