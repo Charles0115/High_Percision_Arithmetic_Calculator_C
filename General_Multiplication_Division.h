@@ -6,8 +6,8 @@
 #define HIGH_PERCISION_ARITHMETIC_CALCULATOR_C_GENERAL_MULTIPLICATION_DIVISION_H
 
 #include "Elementary.h"
+#include "Grade_School_Addition_Subtraction.h"
 
-static int NumberArrayLength;
 char* WholeNumberMultiplication(char* number1, char* number2);
 int* AddOperation(int num1[], int num2[], int ArrayLength);
 char* DecimalNumberMultiplication(char* number1, char* number2);
