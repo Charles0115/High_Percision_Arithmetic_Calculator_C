@@ -1,6 +1,6 @@
 #include "Stack.h"
 #include "Queue.h"
-#include "Grade_School_Calculation.h"
+#include "Grade_School_Addition_Subtraction.h"
 
 void InputNumber(char* (*pStr));
 int priority(char operator);	//Return the priority of the operator
@@ -32,6 +32,12 @@ int main(void)
 
         if(strcmp(input, "over")==0)
             break;
+        if(input[strlen(input)-1] != '=')
+        {
+            printf("Incorrect Input! You have to type '=' at the end. Program ends.");
+            exit(EXIT_FAILURE);
+        }
+
         LinkStack* OperatorStack = createStack();	//Create a stack that has operators
         LinkQueue* PostfixQueue = createQueue();	//Create a queue that can transform expression to Postfix
 

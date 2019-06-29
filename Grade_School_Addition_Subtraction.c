@@ -2,7 +2,7 @@
 // Created by charl on 2019-05-12.
 //
 
-#include "Grade_School_Calculation.h"
+#include "Grade_School_Addition_Subtraction.h"
 
 /*
  * This function changes the input from char array to int array
@@ -138,7 +138,7 @@ char* WholeDecimalAddition(char* number1, char* number2)
     char* WholeNumberSum = NULL;	//This contains the whole number result
     char* finalresult = NULL;
 
-    if (DecimalNum1 == NULL && DecimalNum2 != NULL)	//If the first number is a whole number and the second one is a decimal number
+    if (DecimalNum2 != NULL)	//If the first number is a whole number and the second one is a decimal number
     {
         WholeNumberSum = WholeNumberAddition(WholeNum1, WholeNum2);
         //The length of *finalresult should the the length of WholeNumberSum plus the length of decimal places plus 1 for '.'
@@ -160,7 +160,8 @@ char* WholeDecimalAddition(char* number1, char* number2)
         strcat(finalresult, DecimalNum1);
     }
     //There may be useless 0s in the decimal places, we need to get rid of them
-    for (int i = strlen(finalresult) - 1; i >= 0; i--)
+    int i;
+    for (i = strlen(finalresult) - 1; i >= 0; i--)
     {
         if (finalresult[i] != '0')	//If the digit we find is non-zero, we know that everything after that are 0s and should be eliminated
         {
@@ -372,7 +373,8 @@ char* WholeNumberSubtraction(char* number1, char* number2)
 
     //First we need to eliminate 0s (if any) at the front of each number.(Sometimes users can be a pain in the ass....)
     //Similiar method used in the addition function
-    for (i = 0; i < strlen(number1); i++)
+    int length1 = strlen(number1), length2 = strlen(number2);
+    for (i = 0; i < length1; i++)
     {
         if (number1[i] != '0')
         {
@@ -380,13 +382,23 @@ char* WholeNumberSubtraction(char* number1, char* number2)
             break;
         }
     }
-    for (i = 0; i < strlen(number2); i++)
+    if (i == length1)	//If the result is just 0, we change the number1 to 0 as well
+    {
+        number1 = "0";
+    }
+
+    //do the same thing for number2
+    for (i = 0; i < length2; i++)
     {
         if (number2[i] != '0')
         {
-            number2 = &number2[i];
+            number2 = &number2[i];	//This is like string.substring(i) in java
             break;
         }
+    }
+    if (i == length2)	//If the result is just 0, we change the *finalresult to 0 as well
+    {
+        number2 = "0";
     }
 
     /*
@@ -1019,8 +1031,6 @@ char* DecimalNumberMultiplication(char* number1, char* number2)
     char* Decimal_Whole2 = NULL;
     int DecimalDigit;
     char* finalresult = NULL;
-    //char* TempResult = NULL;	//Contains some temporary string, mostly for *finalresult
-    //char* Temp1 = NULL;		//Contains other miscellaneous strings
 
     if(DecimalNum1==NULL && DecimalNum2!=NULL)  //If the first number is whole number and another is decimal number
     {
@@ -1069,12 +1079,15 @@ char* DecimalNumberMultiplication(char* number1, char* number2)
         }
         finalresult[i] = '\0';
     }
+        //If the answer is less than 1 but greater than 0.1
     else if(strlen(Product) == DecimalDigit)
     {
+        //It has to be 0. something
         finalresult = malloc(strlen(Product)+2);
         strcpy(finalresult, "0.");
         strcat(finalresult, Product);
 
+        //Check if there are any useless 0s at the end
         for(i=strlen(finalresult)-1; i>=0; i--)
         {
             if(finalresult[i] != '0')
@@ -1140,6 +1153,7 @@ char* DecimalNumberMultiplication(char* number1, char* number2)
     free(Decimal_Whole2);
     return finalresult;
 }
+
 
 
 int Compare(char* number1, char* number2)
