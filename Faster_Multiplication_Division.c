@@ -343,8 +343,18 @@ char* Round(char* number)
 
 }
 
+
+/*
+ * This is Newton-Paphson Alg.
+ * The idea is using formula "X(n+1) = Xn*(2-bXn)" (b is number2) to calculate 1/number2.
+ * Instead of doing division, we will do 2 multiplications and 1 subtraction.
+ * Note: this alg gives an estimated value.
+ * The more you do the recursion, the more accurate you will get.
+ */
 char* Newton_Raphson_Alg(char* X, char* number2)
 {
+    //First we clear up the 0s at the end. We can do that
+    //because we know X is a decimal number
     int i;
     for(i=strlen(X)-1; i>=0; i--)
     {
@@ -360,6 +370,9 @@ char* Newton_Raphson_Alg(char* X, char* number2)
     char* product2;
     int decimalplace = strlen(X) - 2;
 
+    /*
+     * I have to think about this later.
+     */
     if(Digit < decimalplace)
     {
         char* result = Round(X);
@@ -410,14 +423,54 @@ char* WholeNumberDivision(char* number1, char* number2)
         exit(EXIT_FAILURE);
     }
 
-    if(isSame(number1, number2) == 1)
+    if(isSame(number1, number2) == 1)   //If two numbers are the same, return 1
         return "1";
 
-    if(strlen(number2) < 10)
+    /*
+     * This is when we apply Newton-Raphson method to calculate 1/number2. Recall that we can do division using 'double'.
+     * It can calculate up to 16 decimal digits. Theoretically, we can calculate 1 divided by a 15 digits number.
+     * However, both int and long can only handle 9 digits number. So we have to split them into 2 cases.
+     * Case 1:
+     * denominator has less than 10 digits. We just transform number2 to int and do the division, then put the result
+     * into Newton-Raphson method.
+     * Case 2:
+     * denominator has more than 10 digits. Then we have to eliminate some digits. We take the first 9 digits and just assume
+     * the rest of the digits are 0s. Ex. number2=1234567899876  we assume number2=1234567890000
+     * We use the first 9 digits to do the division, then we simply add 0s behind '.' number of the  rest of digits times.
+     * Ex. result=0.0000000087668...... there are 4 0s, we add 4 0s behind the '.'.   result=0.00000000000087668......
+     */
+    if(strlen(number2) < 10)    //First case
     {
         double firstDivide = (double) 1 / atoi(number2);
         char X0[20];
         sprintf(X0, "%.16f", firstDivide);
+        char* divideResult = Newton_Raphson_Alg(X0, number2);   //This step is to calculate 1/number2
+        char* finalresult = DecimalNumberMultiplication(number1, divideResult); //This step multiplies divideResult by number1, which is the finalresult.
+        return finalresult;
+    }
+    else    //Second case
+    {
+        char PartofNumber2[10];
+        strncpy(PartofNumber2, number2, 9);
+        PartofNumber2[9] = '\0';
+        double firstDivide = (double) 1 / atoi(PartofNumber2);
+        char tempX0[20];
+        sprintf(tempX0, "%.16f", firstDivide);
+        int difference = strlen(number2) - 9;   //Calculate the number of 0s we should put behind '.'
+
+        char* realX0 = malloc((difference+16));
+        for(i=0; i<difference; i++)
+        {
+            strcat(realX0, "0");
+        }
+        strtok(number2, ".");
+        char* DecimalNum = strtok(NULL, ".");
+        strcat(realX0, DecimalNum);
+
+        char* X0 = malloc(strlen(realX0)+2);
+        strcpy(X0, "0.");
+        strcat(X0, realX0);
+
         char* divideResult = Newton_Raphson_Alg(X0, number2);
         char* finalresult = DecimalNumberMultiplication(number1, divideResult);
         return finalresult;

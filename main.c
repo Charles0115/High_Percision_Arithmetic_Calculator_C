@@ -1,7 +1,7 @@
 #include "Stack.h"
 #include "Queue.h"
 #include "Grade_School_Addition_Subtraction.h"
-#include "General_Multiplication_Division.h"
+#include "Faster_Multiplication_Division.h"
 
 void InputNumber(char* (*pStr));
 int priority(char operator);	//Return the priority of the operator
