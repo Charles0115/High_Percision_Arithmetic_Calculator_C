@@ -8,7 +8,6 @@
 #include "Elementary.h"
 
 static int NumberArrayLength;
-static int Digit=11;
 void toWholeNumber(int* (*num), char* n);	//Change the input into int array
 char* WholeNumberAddition(char* number1, char* number2);	//Add two whole numbers
 char* WholeDecimalAddition(char* number1, char* number2);	//Add one decimal number, one whole number

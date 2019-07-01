@@ -8,6 +8,7 @@
 #include "Elementary.h"
 #include "Grade_School_Addition_Subtraction.h"
 
+static int Digit=11;
 char* WholeNumberMultiplication(char* number1, char* number2);
 int* AddOperation(int num1[], int num2[], int ArrayLength);
 char* DecimalNumberMultiplication(char* number1, char* number2);

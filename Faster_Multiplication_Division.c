@@ -5,11 +5,20 @@
 #include "Faster_Multiplication_Division.h"
 
 
+/*
+ * this is the Karatsuba Multiplication algorithm.
+ * It is a recursion.
+ * the idea is to split the number into two parts and then use some multiplication trick to reduce
+ * to 3 multiplications.
+ */
 char* KaratsubaAlg(char* number1, char* number2)
 {
     //Since two numbers have the same length, we need a variable to indicate the length.
     int Length = strlen(number1);
-    char* finalresult = malloc(2 * Length);
+    char* finalresult = malloc(2 * Length);     //finalresult has at most 2 times the length of each number (99*99=9801)
+
+    //If two numbers have less than 5 digits, we can simply use the normal int multiplications.
+    //The limit of an int has 10 digits.
     if(Length < 5)
     {
         int product = atoi(number1) * atoi(number2);
@@ -17,9 +26,11 @@ char* KaratsubaAlg(char* number1, char* number2)
         return finalresult;
     }
 
+    //If the two numbers have more than 4 digits, do the following.
     int SplitLength = Length/2;
 
     int i;
+    //Split them into high parts and low parts.
     char* high1 = malloc(SplitLength+1);
     char* low1 = &number1[SplitLength];
     char* high2 = malloc(SplitLength+1);
@@ -27,13 +38,14 @@ char* KaratsubaAlg(char* number1, char* number2)
 
     strncpy(high1, number1, SplitLength);
     strncpy(high2, number2, SplitLength);
-    high1[SplitLength] = 0;
+    high1[SplitLength] = 0;     //Add '\0' at the end
     high2[SplitLength] = 0;
 
     char* product1 = KaratsubaAlg(low1, low2);
     char* product2 = KaratsubaAlg(WholeNumberAddition(low1, high1), WholeNumberAddition(low2, high2));
     char* product3 = KaratsubaAlg(high1, high2);
 
+    //(product3*10^2(Length-SplitLength))+((product2-product3-product1)*10^(Length-SplitLength))+product1
     char* temp1 = strdup(product3);
     for(i=0; i<2*(Length-SplitLength); i++)
         strcat(temp1, "0");
@@ -59,6 +71,9 @@ char* KaratsubaAlg(char* number1, char* number2)
 
 
 
+/*
+ * This is a faster multiplication method that uses Karatsuba Multiplication Algorithm.
+ */
 char* WholeNumberMultiplication(char* number1, char* number2)
 {
     //First we need to check if two numbers have useless 0s at the front (again, people are mean...)
@@ -200,7 +215,7 @@ char* DecimalNumberMultiplication(char* number1, char* number2)
         }
         finalresult[i] = '\0';
     }
-        //If the answer is less than 1 but greater than 0.1
+    //If the answer is less than 1 but greater than 0.1
     else if(strlen(Product) == DecimalDigit)
     {
         //It has to be 0. something
@@ -273,4 +288,138 @@ char* DecimalNumberMultiplication(char* number1, char* number2)
     free(Decimal_Whole1);
     free(Decimal_Whole2);
     return finalresult;
+}
+
+
+
+int isSame (char* number1, char* number2)
+{
+    if(strlen(number1) == strlen(number2))
+    {
+        int i;
+        for(i=0; i<strlen(number1); i++)
+        {
+            if(number1[i] != number2[i])
+                return 0;
+        }
+        return 1;
+    }
+    else
+    {
+        return 0;
+    }
+}
+
+char* Round(char* number)
+{
+    int i = Digit + 1;
+
+    if(number[i] <= '4')
+    {
+        number[i] = '\0';
+        return number;
+    }
+    else
+    {
+        number[i] = '\0';
+        i = Digit;
+        while(number[i-1] != '.')
+        {
+            number[i] = (char)(number[i] + 1);
+            if(number[i] == ':')
+            {
+                number[i] = '0';
+                i--;
+            }
+            else
+            {
+                return number;
+            }
+        }
+
+        return "1";
+    }
+
+
+}
+
+char* Newton_Raphson_Alg(char* X, char* number2)
+{
+    int i;
+    for(i=strlen(X)-1; i>=0; i--)
+    {
+        if(X[i] != '0')
+        {
+            X[i+1] = '\0';
+            break;
+        }
+    }
+
+    char* product1;
+    char* subtract;
+    char* product2;
+    int decimalplace = strlen(X) - 2;
+
+    if(Digit < decimalplace)
+    {
+        char* result = Round(X);
+        return result;
+    }
+
+
+    while(Digit > decimalplace)
+    {
+        product1 = DecimalNumberMultiplication(X, number2);
+        subtract = DecimalNumberSubtraction("2", product1);
+        product2 = DecimalNumberMultiplication(subtract, X);
+        strcpy(X, product2);
+    }
+
+    char* result = Round(X);
+    return result;
+}
+
+char* WholeNumberDivision(char* number1, char* number2)
+{
+    int i, length1 = strlen(number1), length2 = strlen(number2);
+    for (i = 0; i < length1; i++)
+    {
+        if (number1[i] != '0')
+        {
+            number1 = &number1[i];	//This is like string.substring(i) in java
+            break;
+        }
+    }
+    if (i == length1)	//This means that the numerator is 0, we can immediately say the result is 0
+    {
+        return "0";
+    }
+
+    //do the same thing for number2
+    for (i = 0; i < length2; i++)
+    {
+        if (number2[i] != '0')
+        {
+            number2 = &number2[i];	//This is like string.substring(i) in java
+            break;
+        }
+    }
+    if (i == length2)	//This means that the denominator is 0, this will give us an error
+    {
+        printf("The denominator is 0!! Program Ends.\n");
+        exit(EXIT_FAILURE);
+    }
+
+    if(isSame(number1, number2) == 1)
+        return "1";
+
+    if(strlen(number2) < 10)
+    {
+        double firstDivide = (double) 1 / atoi(number2);
+        char X0[20];
+        sprintf(X0, "%.16f", firstDivide);
+        char* divideResult = Newton_Raphson_Alg(X0, number2);
+        char* finalresult = DecimalNumberMultiplication(number1, divideResult);
+        return finalresult;
+    }
 }
